@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BTC Auto Trader - 設定</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">₿ BTC Auto Trader</div>
+  <div class="nav-links">
+    <a href="/">ダッシュボード</a>
+    <a href="/trades">取引履歴</a>
+    <a href="/logs">ログ</a>
+    <a href="/settings" class="active">設定</a>
+  </div>
+</nav>
+
+<main>
+  <div class="page-title">設定</div>
+  <div id="alert-area"></div>
+
+  <div class="settings-grid">
+
+    <!-- APIキー設定 -->
+    <div class="card">
+      <div class="section-title">🔑 APIキー</div>
+      <form id="form-api">
+        <div class="form-group">
+          <label for="bitbank-key">bitbank APIキー</label>
+          <input type="password" id="bitbank-key" placeholder="空欄のままで変更しません">
+          <div class="form-hint">bitbank管理画面 > API管理 で取得（取引権限が必要）</div>
+        </div>
+        <div class="form-group">
+          <label for="bitbank-secret">bitbank APIシークレット</label>
+          <input type="password" id="bitbank-secret" placeholder="空欄のままで変更しません">
+        </div>
+        <div class="form-group">
+          <label for="anthropic-key">Anthropic APIキー</label>
+          <input type="password" id="anthropic-key" placeholder="空欄のままで変更しません">
+          <div class="form-hint">console.anthropic.com で取得</div>
+        </div>
+        <button type="submit" class="btn btn-primary">APIキーを保存</button>
+      </form>
+    </div>
+
+    <!-- 取引設定 -->
+    <div class="card">
+      <div class="section-title">⚙️ 取引設定</div>
+      <form id="form-trading">
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-info">ドライランモード</div>
+            <div class="toggle-desc">ONの場合、実際には注文しません（シミュレーション）</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="dry-run" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="form-group" style="margin-top:16px">
+          <label for="order-amount">1回の注文金額 (JPY)</label>
+          <input type="number" id="order-amount" min="1000" step="1000">
+          <div class="form-hint">1回の買い/売り注文の金額</div>
+        </div>
+        <div class="form-group">
+          <label for="polling-interval">Claude判断間隔 (分)</label>
+          <input type="number" id="polling-interval" min="1" max="60">
+          <div class="form-hint">変更は再起動後に反映されます</div>
+        </div>
+        <button type="submit" class="btn btn-primary">取引設定を保存</button>
+      </form>
+    </div>
+
+    <!-- グローバルストップ -->
+    <div class="card">
+      <div class="section-title">🛑 グローバルストップ</div>
+      <form id="form-stop">
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-info">グローバルストップを有効化</div>
+            <div class="toggle-desc">総資産が閾値を下回ると自動取引を停止</div>
+          </div>
+          <label class="toggle">
+            <input type="checkbox" id="global-stop-enabled" checked>
+            <span class="toggle-slider"></span>
+          </label>
+        </div>
+        <div class="form-group" style="margin-top:16px">
+          <label for="global-stop-base">基準総資産額 (JPY)</label>
+          <input type="number" id="global-stop-base" min="0" step="1000">
+          <div class="form-hint">運用開始時の総資産（BTC+JPYのJPY換算額）</div>
+        </div>
+        <div class="form-group">
+          <label for="global-stop-pct">損失率ストップライン (%)</label>
+          <input type="number" id="global-stop-pct" min="1" max="99" step="1">
+          <div class="form-hint">基準額からこの割合損失したら停止</div>
+        </div>
+        <div id="stop-calc" style="font-size:12px;color:var(--accent);margin-bottom:16px"></div>
+        <button type="submit" class="btn btn-primary">グローバルストップを保存</button>
+      </form>
+    </div>
+
+    <!-- 取引ルール -->
+    <div class="card" style="grid-column: 1 / -1">
+      <div class="section-title">📋 取引ルール (Claudeへの指示)</div>
+      <form id="form-rules">
+        <div class="form-group">
+          <textarea id="rules-editor" rows="20" placeholder="取引ルールを記入してください..."></textarea>
+          <div class="form-hint">このテキストがClaudeへの取引指示として毎回送信されます。マークダウン形式で記載できます。</div>
+        </div>
+        <button type="submit" class="btn btn-primary">ルールを保存</button>
+      </form>
+    </div>
+
+  </div>
+</main>
+
+<script src="/static/js/api.js"></script>
+<script src="/static/js/settings.js"></script>
+</body>
+</html>

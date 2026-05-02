@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BTC Auto Trader - ログ</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">₿ BTC Auto Trader</div>
+  <div class="nav-links">
+    <a href="/">ダッシュボード</a>
+    <a href="/trades">取引履歴</a>
+    <a href="/logs" class="active">ログ</a>
+    <a href="/settings">設定</a>
+  </div>
+  <div class="nav-spacer"></div>
+  <select id="level-filter" style="background:var(--bg-card);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:6px 10px;font-size:13px">
+    <option value="ALL">すべて</option>
+    <option value="INFO">INFO</option>
+    <option value="WARNING">WARNING</option>
+    <option value="ERROR">ERROR</option>
+  </select>
+  <button id="btn-scroll" class="btn" style="color:var(--up)">自動スクロール: ON</button>
+  <button id="btn-clear" class="btn">クリア</button>
+</nav>
+
+<main style="padding:0">
+  <div id="log-stream" class="log-stream"></div>
+</main>
+
+<script src="/static/js/api.js"></script>
+<script src="/static/js/ws.js"></script>
+<script src="/static/js/logs.js"></script>
+</body>
+</html>

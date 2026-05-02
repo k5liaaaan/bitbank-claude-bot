@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BTC Auto Trader - 取引履歴</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">₿ BTC Auto Trader</div>
+  <div class="nav-links">
+    <a href="/">ダッシュボード</a>
+    <a href="/trades" class="active">取引履歴</a>
+    <a href="/logs">ログ</a>
+    <a href="/settings">設定</a>
+  </div>
+  <div class="nav-spacer"></div>
+  <button id="btn-export" class="btn">CSV出力</button>
+</nav>
+
+<main>
+  <div class="page-title">取引履歴</div>
+
+  <div class="card">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>日時</th>
+            <th>売買</th>
+            <th>価格</th>
+            <th>BTC量</th>
+            <th>金額 (JPY)</th>
+            <th>理由</th>
+            <th>注文ID</th>
+          </tr>
+        </thead>
+        <tbody id="trades-body">
+          <tr><td colspan="7" class="loader">読み込み中...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination">
+      <span id="page-info" style="font-size:12px;color:var(--text-muted)"></span>
+      <button id="btn-prev" class="btn" disabled>← 前へ</button>
+      <button id="btn-next" class="btn">次へ →</button>
+    </div>
+  </div>
+</main>
+
+<script src="/static/js/api.js"></script>
+<script src="/static/js/trades.js"></script>
+</body>
+</html>

@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  api:
+    build: ./src/server
+    ports:
+      - "127.0.0.1:8080:8080"
+    volumes:
+      - ./data:/app/data
+      - ./config:/app/config
+      - ./.env:/app/.env
+      - ./src/web:/app/web
+    environment:
+      - TZ=Asia/Tokyo
+      - REDIS_URL=redis://redis:6379
+      - DB_PATH=/app/data/trading.db
+      - CONFIG_PATH=/app/config/trading_rules.md
+      - WEB_PATH=/app/web
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "127.0.0.1:6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped

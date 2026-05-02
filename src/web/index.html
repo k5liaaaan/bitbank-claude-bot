@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BTC Auto Trader - ダッシュボード</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<nav>
+  <div class="nav-brand">₿ BTC Auto Trader</div>
+  <span id="dry-badge" class="badge badge-dry">DRY RUN</span>
+  <div class="nav-status">
+    <span id="status-dot" class="status-dot stopped"></span>
+    <span id="status-label">停止中</span>
+  </div>
+  <div class="nav-links">
+    <a href="/" class="active">ダッシュボード</a>
+    <a href="/trades">取引履歴</a>
+    <a href="/logs">ログ</a>
+    <a href="/settings">設定</a>
+  </div>
+  <div class="nav-spacer"></div>
+  <button id="btn-start" class="btn btn-success">▶ 開始</button>
+  <button id="btn-stop" class="btn btn-danger" disabled>■ 停止</button>
+</nav>
+
+<main>
+  <!-- 価格バー -->
+  <div class="price-bar">
+    <div class="price-item">
+      <div class="price-label">BTC / JPY</div>
+      <div id="price-last" class="price-main" style="color:var(--accent)">---</div>
+    </div>
+    <div class="price-item">
+      <div class="price-label">24h 高値</div>
+      <div id="price-high" style="color:var(--up);font-size:18px;font-weight:600">---</div>
+    </div>
+    <div class="price-item">
+      <div class="price-label">24h 安値</div>
+      <div id="price-low" style="color:var(--down);font-size:18px;font-weight:600">---</div>
+    </div>
+    <div class="price-item">
+      <div class="price-label">出来高 (24h)</div>
+      <div id="price-vol" style="font-size:16px;font-weight:500">---</div>
+    </div>
+    <div class="nav-spacer"></div>
+    <div style="font-size:11px;color:var(--text-muted)">● WebSocket Live</div>
+  </div>
+
+  <!-- 最新シグナル -->
+  <div class="card" style="margin-bottom:16px;padding:12px 20px">
+    <span style="font-size:12px;color:var(--text-muted);margin-right:12px">最新シグナル</span>
+    <span id="last-signal" style="font-size:14px">---</span>
+  </div>
+
+  <!-- ダッシュボードグリッド -->
+  <div class="dashboard-grid">
+    <!-- 左: チャート -->
+    <div class="card">
+      <div class="card-title">資産推移 (過去30日)</div>
+      <div class="chart-container">
+        <canvas id="asset-chart"></canvas>
+      </div>
+    </div>
+
+    <!-- 右: 直近取引 -->
+    <div class="card">
+      <div class="card-title">直近の取引</div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>日時</th>
+              <th>売買</th>
+              <th>価格</th>
+              <th>金額</th>
+            </tr>
+          </thead>
+          <tbody id="recent-trades">
+            <tr><td colspan="4" class="loader">読み込み中...</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="margin-top:12px;text-align:right">
+        <a href="/trades" style="font-size:12px;color:var(--accent)">全履歴を見る →</a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="/static/js/api.js"></script>
+<script src="/static/js/ws.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="/static/js/dashboard.js"></script>
+</body>
+</html>
