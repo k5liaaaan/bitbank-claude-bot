@@ -1,0 +1,29 @@
+# APIキー・秘密情報（絶対にコミットしない）
+.env
+
+# ランタイムデータ
+data/
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+env/
+*.egg-info/
+dist/
+build/
+
+# VSCode
+.vscode/
+
+# Mac
+.DS_Store
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# ログ
+*.log
