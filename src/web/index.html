@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>BTC Auto Trader - ダッシュボード</title>
-  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="stylesheet" href="/static/css/style.css?v=7">
 </head>
 <body>
 
@@ -24,9 +24,29 @@
   <div class="nav-spacer"></div>
   <button id="btn-start" class="btn btn-success">▶ 開始</button>
   <button id="btn-stop" class="btn btn-danger" disabled>■ 停止</button>
+  <button id="btn-trigger" class="btn" title="今すぐ1回取引判断を実行">⚡ テスト実行</button>
 </nav>
 
 <main>
+  <!-- 判断パネル（手動モード時） -->
+  <div id="decision-panel" class="decision-panel">
+    <div class="decision-header">
+      <span class="icon">⚡</span>
+      <span>取引判断の時間です — 下のプロンプトをClaude.aiに貼り付けて判断してください</span>
+      <span id="decision-price" style="margin-left:auto;color:var(--accent);font-size:14px"></span>
+    </div>
+    <div id="decision-prompt" class="decision-prompt"></div>
+    <div class="decision-actions">
+      <button id="btn-copy-prompt" class="btn">📋 プロンプトをコピー</button>
+      <a id="btn-open-claude" href="https://claude.ai" target="_blank" class="btn">🤖 Claude.aiを開く</a>
+      <div class="decision-sep"></div>
+      <span style="font-size:12px;color:var(--text-muted)">Claudeの回答を見て選択 →</span>
+      <button id="btn-buy"  class="btn btn-buy">▲ BUY</button>
+      <button id="btn-hold" class="btn btn-hold">― HOLD</button>
+      <button id="btn-sell" class="btn btn-sell">▼ SELL</button>
+    </div>
+  </div>
+
   <!-- 価格バー -->
   <div class="price-bar">
     <div class="price-item">
@@ -90,9 +110,9 @@
   </div>
 </main>
 
-<script src="/static/js/api.js"></script>
-<script src="/static/js/ws.js"></script>
+<script src="/static/js/api.js?v=7"></script>
+<script src="/static/js/ws.js?v=7"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="/static/js/dashboard.js"></script>
+<script src="/static/js/dashboard.js?v=7"></script>
 </body>
 </html>

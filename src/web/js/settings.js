@@ -15,10 +15,24 @@ async function loadSettings() {
     set('anthropic-key', s.anthropic_api_key || '');
     set('order-amount', s.order_amount_jpy || '10000');
     set('polling-interval', s.polling_interval_minutes || '15');
+    const modeEl = document.getElementById('trading-mode');
+    if (modeEl) modeEl.value = s.trading_mode || 'manual';
     set('global-stop-base', s.global_stop_base_asset_jpy || '100000');
     set('global-stop-pct', s.global_stop_loss_pct || '20');
     setChk('dry-run', s.dry_run);
     setChk('global-stop-enabled', s.global_stop_enabled);
+
+    set('slack-bot-token', s.slack_bot_token || '');
+    set('slack-app-token', s.slack_app_token || '');
+    set('slack-channel', s.slack_channel || '');
+
+    const statusEl = document.getElementById('slack-status');
+    if (statusEl) {
+      const hasCreds = s.slack_bot_token && s.slack_app_token && s.slack_channel;
+      statusEl.innerHTML = hasCreds
+        ? '<span style="color:var(--up)">● 設定済み（再起動後に接続）</span>'
+        : '<span style="color:var(--text-muted)">○ 未設定</span>';
+    }
 
     updateStopCalc();
   } catch (e) {
@@ -70,10 +84,12 @@ document.getElementById('form-trading')?.addEventListener('submit', async (e) =>
     dry_run: document.getElementById('dry-run').checked,
     order_amount_jpy: parseFloat(document.getElementById('order-amount').value),
     polling_interval_minutes: parseInt(document.getElementById('polling-interval').value),
+    trading_mode: document.getElementById('trading-mode').value,
   };
   try {
     await api.updateSettings(data);
     showAlert('取引設定を保存しました');
+    loadSettings();
   } catch { showAlert('保存に失敗しました', 'error'); }
 });
 
@@ -97,6 +113,22 @@ document.getElementById('form-rules')?.addEventListener('submit', async (e) => {
   try {
     await api.updateRules(content);
     showAlert('取引ルールを保存しました');
+  } catch { showAlert('保存に失敗しました', 'error'); }
+});
+
+document.getElementById('form-slack')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const data = {};
+  const botToken = document.getElementById('slack-bot-token').value;
+  const appToken = document.getElementById('slack-app-token').value;
+  const channel = document.getElementById('slack-channel').value;
+  if (botToken && !botToken.startsWith('••••')) data.slack_bot_token = botToken;
+  if (appToken && !appToken.startsWith('••••')) data.slack_app_token = appToken;
+  if (channel) data.slack_channel = channel;
+  try {
+    await api.updateSettings(data);
+    showAlert('Slack設定を保存しました。Dockerを再起動すると接続します。');
+    loadSettings();
   } catch { showAlert('保存に失敗しました', 'error'); }
 });
 

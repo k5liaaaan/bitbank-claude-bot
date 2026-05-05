@@ -30,14 +30,15 @@ a { color: var(--text); text-decoration: none; }
 nav {
   background: var(--bg-card);
   border-bottom: 1px solid var(--border);
-  padding: 0 24px;
+  padding: 0 16px;
   height: 56px;
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 8px;
   position: sticky;
   top: 0;
   z-index: 100;
+  overflow: hidden;
 }
 
 .nav-brand {
@@ -60,6 +61,7 @@ nav {
   color: var(--text-muted);
   font-size: 13px;
   transition: all 0.15s;
+  white-space: nowrap;
 }
 
 .nav-links a:hover,
@@ -379,6 +381,66 @@ textarea { resize: vertical; font-family: 'Cascadia Code', 'Fira Code', monospac
 .alert-success { background: rgba(0, 212, 170, 0.1); color: var(--up); border: 1px solid rgba(0, 212, 170, 0.3); }
 .alert-error { background: rgba(255, 71, 87, 0.1); color: var(--down); border: 1px solid rgba(255, 71, 87, 0.3); }
 .alert-info { background: rgba(88, 166, 255, 0.1); color: var(--info); border: 1px solid rgba(88, 166, 255, 0.3); }
+
+/* ── Decision panel ── */
+.decision-panel {
+  display: none;
+  background: linear-gradient(135deg, rgba(247,147,26,0.12), rgba(247,147,26,0.05));
+  border: 1px solid rgba(247,147,26,0.5);
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 20px;
+  animation: pulse-border 2s infinite;
+}
+
+.decision-panel.active { display: block; }
+
+@keyframes pulse-border {
+  0%, 100% { border-color: rgba(247,147,26,0.5); }
+  50%       { border-color: rgba(247,147,26,1); }
+}
+
+.decision-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.decision-header .icon { font-size: 20px; }
+
+.decision-prompt {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px;
+  font-family: 'Cascadia Code','Fira Code',monospace;
+  font-size: 12px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  max-height: 260px;
+  overflow-y: auto;
+  margin-bottom: 14px;
+  color: var(--text-muted);
+}
+
+.decision-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.btn-buy  { background: rgba(0,212,170,0.15); border-color: var(--up);   color: var(--up);   font-weight: 700; font-size: 15px; padding: 10px 24px; }
+.btn-hold { background: rgba(139,148,158,0.15); border-color: var(--text-muted); color: var(--text-muted); font-weight: 700; font-size: 15px; padding: 10px 24px; }
+.btn-sell { background: rgba(255,71,87,0.15);  border-color: var(--down); color: var(--down); font-weight: 700; font-size: 15px; padding: 10px 24px; }
+.btn-buy:hover  { background: rgba(0,212,170,0.3); }
+.btn-hold:hover { background: rgba(139,148,158,0.3); }
+.btn-sell:hover { background: rgba(255,71,87,0.3); }
+
+.decision-sep { flex: 1; }
 
 /* ── Pagination ── */
 .pagination {

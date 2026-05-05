@@ -41,6 +41,10 @@ class SettingsUpdate(BaseModel):
     global_stop_base_asset_jpy: Optional[float] = None
     global_stop_loss_pct: Optional[float] = None
     order_amount_jpy: Optional[float] = None
+    trading_mode: Optional[str] = None  # "manual" or "api"
+    slack_bot_token: Optional[str] = None
+    slack_app_token: Optional[str] = None
+    slack_channel: Optional[str] = None
 
 
 class RulesUpdate(BaseModel):

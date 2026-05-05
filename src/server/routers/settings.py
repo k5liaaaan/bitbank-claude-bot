@@ -5,6 +5,7 @@ from fastapi import APIRouter
 from config import config
 from database import get_all_settings, get_setting, set_setting
 from models import RulesUpdate, SettingsUpdate
+from trading_engine import trading_engine
 
 router = APIRouter()
 
@@ -12,8 +13,9 @@ router = APIRouter()
 @router.get("/settings")
 async def get_settings():
     settings = await get_all_settings()
-    # APIキーはマスク表示
-    for key in ("bitbank_api_key", "bitbank_api_secret", "anthropic_api_key"):
+    # APIキー・トークンはマスク表示
+    for key in ("bitbank_api_key", "bitbank_api_secret", "anthropic_api_key",
+                "slack_bot_token", "slack_app_token"):
         val = settings.get(key, "")
         if val:
             settings[key] = "••••" + val[-4:]
@@ -52,11 +54,20 @@ async def update_settings(data: SettingsUpdate):
         mapping["dry_run"] = "true" if data.dry_run else "false"
     if data.global_stop_enabled is not None:
         mapping["global_stop_enabled"] = "true" if data.global_stop_enabled else "false"
+    if data.trading_mode is not None:
+        mapping["trading_mode"] = data.trading_mode
+    if data.slack_bot_token is not None:
+        mapping["slack_bot_token"] = data.slack_bot_token
+    if data.slack_app_token is not None:
+        mapping["slack_app_token"] = data.slack_app_token
+    if data.slack_channel is not None:
+        mapping["slack_channel"] = data.slack_channel
 
     for key, value in mapping.items():
         if value is not None:
             await set_setting(key, value)
 
+    await trading_engine._publish_status()
     return {"message": "設定を保存しました"}
 
 

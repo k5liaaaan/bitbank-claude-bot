@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>BTC Auto Trader - 設定</title>
-  <link rel="stylesheet" href="/static/css/style.css">
+  <link rel="stylesheet" href="/static/css/style.css?v=8">
 </head>
 <body>
 
@@ -60,6 +60,16 @@
             <span class="toggle-slider"></span>
           </label>
         </div>
+        <div class="toggle-row" style="margin-top:4px">
+          <div>
+            <div class="toggle-info">取引モード</div>
+            <div class="toggle-desc" id="mode-desc">ブラウザで確認してClaude.aiに貼り付け（APIキー不要）</div>
+          </div>
+          <select id="trading-mode" style="background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);padding:6px 10px;font-size:13px">
+            <option value="manual">手動確認モード（Claude.ai）</option>
+            <option value="api">API自動モード（Anthropic APIキー必要）</option>
+          </select>
+        </div>
         <div class="form-group" style="margin-top:16px">
           <label for="order-amount">1回の注文金額 (JPY)</label>
           <input type="number" id="order-amount" min="1000" step="1000">
@@ -103,6 +113,30 @@
       </form>
     </div>
 
+    <!-- Slack通知設定 -->
+    <div class="card">
+      <div class="section-title">💬 Slack通知</div>
+      <form id="form-slack">
+        <div class="form-group">
+          <label for="slack-bot-token">Bot Token</label>
+          <input type="password" id="slack-bot-token" placeholder="xoxb-...（空欄で変更しません）">
+          <div class="form-hint">Slack App → OAuth &amp; Permissions → Bot User OAuth Token</div>
+        </div>
+        <div class="form-group">
+          <label for="slack-app-token">App Token</label>
+          <input type="password" id="slack-app-token" placeholder="xapp-...（空欄で変更しません）">
+          <div class="form-hint">Slack App → Basic Information → App-Level Tokens（connections:write スコープ）</div>
+        </div>
+        <div class="form-group">
+          <label for="slack-channel">通知チャンネル</label>
+          <input type="text" id="slack-channel" placeholder="#trading-bot または チャンネルID">
+          <div class="form-hint">ボットを招待したチャンネル（/invite @ボット名）</div>
+        </div>
+        <div id="slack-status" style="font-size:12px;margin-bottom:12px"></div>
+        <button type="submit" class="btn btn-primary">Slack設定を保存</button>
+      </form>
+    </div>
+
     <!-- 取引ルール -->
     <div class="card" style="grid-column: 1 / -1">
       <div class="section-title">📋 取引ルール (Claudeへの指示)</div>
@@ -118,7 +152,7 @@
   </div>
 </main>
 
-<script src="/static/js/api.js"></script>
-<script src="/static/js/settings.js"></script>
+<script src="/static/js/api.js?v=8"></script>
+<script src="/static/js/settings.js?v=8"></script>
 </body>
 </html>

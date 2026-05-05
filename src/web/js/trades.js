@@ -2,6 +2,15 @@ let offset = 0;
 const LIMIT = 100;
 let allTrades = [];
 
+function toJST(isoStr) {
+  const s = isoStr.includes('+') || isoStr.endsWith('Z') ? isoStr : isoStr + 'Z';
+  return new Date(s).toLocaleString('ja-JP', {
+    timeZone: 'Asia/Tokyo', hour12: false,
+    month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit',
+  }).replace(/\//g, '/');
+}
+
 function fmt(n, d = 0) {
   return Number(n).toLocaleString('ja-JP', { minimumFractionDigits: d, maximumFractionDigits: d });
 }
@@ -17,7 +26,7 @@ function renderTrades(trades) {
     const action = t.action;
     const badgeClass = action === 'buy' ? 'badge-buy' : action === 'sell' ? 'badge-sell' : 'badge-hold';
     const dryFlag = t.is_dry_run ? '<span class="badge badge-dry" style="font-size:10px;margin-left:4px">DRY</span>' : '';
-    const ts = t.timestamp.slice(0, 16).replace('T', ' ');
+    const ts = toJST(t.timestamp);
     tbody.innerHTML += `
       <tr>
         <td style="color:var(--text-muted)">${ts}</td>

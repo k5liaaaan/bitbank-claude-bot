@@ -1,4 +1,47 @@
 let chart = null;
+const DEFAULT_TITLE = 'BTC Auto Trader';
+
+function showDecisionPanel(prompt, price) {
+  document.getElementById('decision-panel').classList.add('active');
+  document.getElementById('decision-prompt').textContent = prompt;
+  document.getElementById('decision-price').textContent = price ? `BTC ¥${Number(price).toLocaleString('ja-JP')}` : '';
+  document.title = '⚡ 確認してください - ' + DEFAULT_TITLE;
+}
+
+function hideDecisionPanel() {
+  document.getElementById('decision-panel').classList.remove('active');
+  document.title = DEFAULT_TITLE;
+}
+
+async function submitDecision(action) {
+  const reason = action === 'hold' ? 'ユーザーがHOLDを選択' : `ユーザーが${action.toUpperCase()}を選択`;
+  ['btn-buy','btn-hold','btn-sell'].forEach(id => {
+    document.getElementById(id).disabled = true;
+  });
+  try {
+    await api.submitDecision(action, reason);
+    // WebSocketが届かない場合のフォールバック
+    hideDecisionPanel();
+    updateLastTrade(action, reason, true);
+    await new Promise(r => setTimeout(r, 1000));
+    const [trades, history] = await Promise.all([api.getTrades(10), api.getAssetHistory(30)]);
+    renderRecentTrades(trades.trades || []);
+    initChart(history.history || []);
+  } finally {
+    ['btn-buy','btn-hold','btn-sell'].forEach(id => {
+      document.getElementById(id).disabled = false;
+    });
+  }
+}
+
+function toJST(isoStr) {
+  const s = isoStr.includes('+') || isoStr.endsWith('Z') ? isoStr : isoStr + 'Z';
+  return new Date(s).toLocaleString('ja-JP', {
+    timeZone: 'Asia/Tokyo', hour12: false,
+    month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit',
+  }).replace(/\//g, '/');
+}
 
 function fmt(n, decimals = 0) {
   return Number(n).toLocaleString('ja-JP', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
@@ -25,12 +68,16 @@ function updateNav(status) {
     btnStop.disabled = true;
   }
 
-  if (status.is_dry_run) {
-    dryBadge.className = 'badge badge-dry';
-    dryBadge.textContent = 'DRY RUN';
-  } else {
-    dryBadge.className = 'badge badge-live';
-    dryBadge.textContent = 'LIVE';
+  if (status.is_dry_run !== undefined) {
+    if (status.is_dry_run) {
+      dryBadge.className = 'badge badge-dry';
+      dryBadge.textContent = 'DRY RUN';
+      dryBadge.dataset.mode = 'dry';
+    } else {
+      dryBadge.className = 'badge badge-live';
+      dryBadge.textContent = 'LIVE';
+      dryBadge.dataset.mode = 'live';
+    }
   }
 }
 
@@ -65,7 +112,7 @@ function renderRecentTrades(trades) {
     const action = t.action;
     const flag = t.is_dry_run ? '<span class="badge badge-dry" style="font-size:10px">DRY</span>' : '';
     const badgeClass = action === 'buy' ? 'badge-buy' : action === 'sell' ? 'badge-sell' : 'badge-hold';
-    const ts = t.timestamp.slice(0, 16).replace('T', ' ');
+    const ts = toJST(t.timestamp);
     tbody.innerHTML += `
       <tr>
         <td>${ts}</td>
@@ -133,12 +180,14 @@ function initChart(history) {
 }
 
 async function init() {
+  let status = null;
   try {
-    const [status, trades, history] = await Promise.all([
+    const [s, trades, history] = await Promise.all([
       api.getBotStatus(),
       api.getTrades(10),
       api.getAssetHistory(30),
     ]);
+    status = s;
 
     updateNav(status);
     renderRecentTrades(trades.trades || []);
@@ -154,10 +203,19 @@ async function init() {
   // Price WebSocket
   new ReconnectingWS('/ws/price', (data) => updatePrice(data));
 
+  // 起動時に未応答のプロンプトがあれば復元
+  if (status && status.has_pending && status.pending_prompt) {
+    showDecisionPanel(status.pending_prompt, status.pending_price);
+  }
+
   // Bot WebSocket
   new ReconnectingWS('/ws/bot', (data) => {
     if (data.event === 'status') updateNav(data);
+    if (data.event === 'prompt_ready') {
+      showDecisionPanel(data.prompt, data.price);
+    }
     if (data.event === 'trade') {
+      hideDecisionPanel();
       updateLastTrade(data.action, data.reason, data.is_dry_run);
       api.getTrades(10).then(r => renderRecentTrades(r.trades || []));
       api.getAssetHistory(30).then(r => initChart(r.history || []));
@@ -165,11 +223,51 @@ async function init() {
   });
 
   document.getElementById('btn-start').addEventListener('click', async () => {
-    await api.startBot();
+    updateNav({ is_running: true, is_dry_run: document.getElementById('dry-badge').dataset.mode === 'dry' });
+    try { await api.startBot(); } catch (e) {
+      updateNav({ is_running: false, is_dry_run: document.getElementById('dry-badge').dataset.mode === 'dry' });
+    }
   });
   document.getElementById('btn-stop').addEventListener('click', async () => {
-    await api.stopBot();
+    updateNav({ is_running: false, is_dry_run: document.getElementById('dry-badge').dataset.mode === 'dry' });
+    try { await api.stopBot(); } catch (e) {
+      updateNav({ is_running: true, is_dry_run: document.getElementById('dry-badge').dataset.mode === 'dry' });
+    }
   });
+
+  document.getElementById('btn-trigger').addEventListener('click', async (e) => {
+    const btn = e.currentTarget;
+    btn.disabled = true;
+    btn.textContent = '⏳ 実行中...';
+    try {
+      await api.triggerCycle();
+      // WebSocketが届かない場合のポーリングフォールバック
+      for (let i = 0; i < 20; i++) {
+        await new Promise(r => setTimeout(r, 1000));
+        const s = await api.getBotStatus();
+        if (s.has_pending && s.pending_prompt) {
+          showDecisionPanel(s.pending_prompt, s.pending_price);
+          break;
+        }
+      }
+    } finally {
+      btn.disabled = false;
+      btn.textContent = '⚡ テスト実行';
+    }
+  });
+
+  document.getElementById('btn-copy-prompt').addEventListener('click', () => {
+    const text = document.getElementById('decision-prompt').textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.getElementById('btn-copy-prompt');
+      btn.textContent = '✅ コピー完了';
+      setTimeout(() => { btn.textContent = '📋 プロンプトをコピー'; }, 2000);
+    });
+  });
+
+  document.getElementById('btn-buy').addEventListener('click',  () => submitDecision('buy'));
+  document.getElementById('btn-hold').addEventListener('click', () => submitDecision('hold'));
+  document.getElementById('btn-sell').addEventListener('click', () => submitDecision('sell'));
 }
 
 init();

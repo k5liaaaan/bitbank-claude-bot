@@ -15,6 +15,8 @@ const api = {
   getBotStatus: () => apiFetch('/bot/status'),
   startBot: () => apiFetch('/bot/start', { method: 'POST' }),
   stopBot: () => apiFetch('/bot/stop', { method: 'POST' }),
+  triggerCycle: () => apiFetch('/bot/trigger', { method: 'POST' }),
+  submitDecision: (action, reason) => apiFetch('/bot/decision', { method: 'POST', body: JSON.stringify({ action, reason }) }),
   getTrades: (limit = 100, offset = 0) => apiFetch(`/trades?limit=${limit}&offset=${offset}`),
   getAssetHistory: (days = 30) => apiFetch(`/assets/history?days=${days}`),
   getLogs: (limit = 200) => apiFetch(`/logs?limit=${limit}`),

@@ -11,6 +11,7 @@ from config import config
 from database import get_setting, init_db, set_setting
 from routers import assets, balance, bot, logs, price, trades, ws
 from routers import settings as settings_api
+from slack_client import slack_client
 from trading_engine import trading_engine
 from websocket_manager import ws_manager
 
@@ -30,10 +31,30 @@ async def lifespan(app: FastAPI):
         minutes=polling_minutes,
         id="trading_cycle",
     )
+    # 毎朝8時（JST）に強制実行 — Slack通知を含む
+    scheduler.add_job(
+        trading_engine.run_trading_cycle,
+        "cron",
+        hour=8,
+        minute=0,
+        timezone="Asia/Tokyo",
+        id="daily_slack",
+        kwargs={"force": True},
+    )
     scheduler.start()
 
     asyncio.create_task(ws_manager.start_redis_listener())
     asyncio.create_task(trading_engine.update_price())
+
+    # Slack Bot起動（トークンが設定されている場合のみ）
+    slack_bot_token = await get_setting("slack_bot_token", "")
+    slack_app_token = await get_setting("slack_app_token", "")
+    slack_channel = await get_setting("slack_channel", "")
+    if slack_bot_token and slack_app_token and slack_channel:
+        asyncio.create_task(slack_client.start(
+            slack_bot_token, slack_app_token, slack_channel,
+            on_decision=trading_engine.execute_manual_decision,
+        ))
 
     yield
 

@@ -32,18 +32,23 @@ class WebSocketManager:
             self.disconnect(ws, channel)
 
     async def start_redis_listener(self):
-        r = redis.from_url(config.REDIS_URL, decode_responses=True)
-        pubsub = r.pubsub()
-        await pubsub.subscribe(*CHANNELS)
-        async for message in pubsub.listen():
-            if message["type"] != "message":
-                continue
-            channel = message["channel"]
+        import asyncio
+        while True:
             try:
-                data = json.loads(message["data"])
-                await self.broadcast(channel, data)
+                r = redis.from_url(config.REDIS_URL, decode_responses=True)
+                pubsub = r.pubsub()
+                await pubsub.subscribe(*CHANNELS)
+                async for message in pubsub.listen():
+                    if message["type"] != "message":
+                        continue
+                    channel = message["channel"]
+                    try:
+                        data = json.loads(message["data"])
+                        await self.broadcast(channel, data)
+                    except Exception:
+                        pass
             except Exception:
-                pass
+                await asyncio.sleep(2)
 
 
 ws_manager = WebSocketManager()

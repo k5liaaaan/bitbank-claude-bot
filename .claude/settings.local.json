@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker compose *)",
+      "Bash(curl -s -X POST http://127.0.0.1:8080/api/bot/trigger)",
+      "Bash(curl -s http://127.0.0.1:8080/api/bot/status)",
+      "Bash(curl -s http://127.0.0.1:8080/api/settings)",
+      "Bash(curl -s -X PUT http://127.0.0.1:8080/api/settings -H \"Content-Type: application/json\" -d \"{\\\\\"dry_run\\\\\": false}\")",
+      "Bash(curl -s -X PUT http://127.0.0.1:8080/api/settings -H \"Content-Type: application/json\" -d \"{\\\\\"dry_run\\\\\": true}\")",
+      "Bash(curl -s http://127.0.0.1:8080/api/logs?limit=30)",
+      "Bash(curl -s \"http://127.0.0.1:8080/api/assets/history?days=30\")",
+      "Bash(curl -s http://127.0.0.1:8080/api/balance)",
+      "Bash(python -c \"import json,sys; s=json.load\\(sys.stdin\\); print\\('base:', s.get\\('global_stop_base_asset_jpy'\\), '| pct:', s.get\\('global_stop_loss_pct'\\), '| enabled:', s.get\\('global_stop_enabled'\\)\\)\")"
+    ]
+  }
+}
